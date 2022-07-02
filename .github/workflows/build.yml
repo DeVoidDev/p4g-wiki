@@ -1,0 +1,28 @@
+name: Build Site
+on:
+  push:
+    branches-ignore:
+      - "main"
+  workflow_call: 
+
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    name: Build Site
+    steps:
+      - name: Pull Repository
+        uses: actions/checkout@v3
+        with: 
+          path: repo
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v2
+        with: 
+          dotnet-version: 6.x
+      - name: Publish Server
+        working-directory: repo/p4g-wiki
+        run: dotnet publish --nologo -c Release -a arm64 --os linux -o ../../out --no-self-contained
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: p4g-wiki
+          path: out

@@ -1,0 +1,43 @@
+name: Deploy Site
+concurrency: deploy
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  build:
+    name: Build Site
+    uses: ./.github/workflows/build.yml
+  deploy:
+    name: Deploy Site
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://persona.voidgroup.net
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: p4g-wiki
+          path: in
+      - name: Save Ssh Key
+        env:
+          DEPLOY_KEY: ${{secrets.DEPLOY_KEY}}
+        run: echo "$DEPLOY_KEY" > ~/deploy_key && chmod 600 ~/deploy_key
+      - name: Save Ssh Config
+        env:
+          SSH_CONFIG: |-
+            Host *
+              IdentityFile ~/deploy_key
+              ControlPath ~/%r@%h:%p
+              StrictHostKeyChecking no
+        run: echo "$SSH_CONFIG" > ssh_config
+      - name: Stop Running Service
+        run: ssh -F ssh_config web-server@voidgroup.net 'sudo systemctl stop p4g-wiki'
+      - name: Delete Existing Files
+        run: ssh -F ssh_config web-server@voidgroup.net 'cd ~/p4g-wiki && find . ! -name . -delete'
+      - name: Copy New Files
+        run: scp -F ssh_config -r ./in/* web-server@voidgroup.net:~/p4g-wiki
+      - name: Start Service
+        run: ssh -F ssh_config web-server@voidgroup.net 'chmod +x ~/p4g-wiki/p4g-wiki && sudo systemctl start p4g-wiki'

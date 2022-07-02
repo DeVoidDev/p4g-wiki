@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "p4g-wiki", "p4g-wiki\p4g-wiki.csproj", "{C16211EA-011F-40CE-828C-DB4673D82963}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C16211EA-011F-40CE-828C-DB4673D82963}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C16211EA-011F-40CE-828C-DB4673D82963}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C16211EA-011F-40CE-828C-DB4673D82963}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C16211EA-011F-40CE-828C-DB4673D82963}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

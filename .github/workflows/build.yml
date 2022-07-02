@@ -19,7 +19,7 @@ jobs:
         with:
           dotnet-version: 6.x
       - name: Publish Server
-        working-directory: repo/app
+        working-directory: repo/p4g-wiki
         run: dotnet publish --nologo -c Release -a arm64 --os linux -o ../../out --no-self-contained
       - name: Upload Artifact
         uses: actions/upload-artifact@v3

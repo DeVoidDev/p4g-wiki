@@ -6,7 +6,7 @@ builder.WebHost.ConfigureKestrel(option => option.AddServerHeader = false);
 builder.AddUnixSocket();
 builder.Services.AddRazorPages();
 var app = builder.Build();
-app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ForwardedHeaderMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapControllers();
 app.Run();

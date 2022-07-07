@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace P4GWiki.Middleware;
 
@@ -32,16 +31,13 @@ public class ForwardedHeaderMiddleware
                     _logger.LogWarning("Malformed Forwarded Parts: {}", forwardedPart);
                     continue;
                 }
-                key = forwardedPartSeperated[0].Trim();
-                val = forwardedPartSeperated[1].Trim();
-            }
-            
-            
 
-            if (val[0] == '"' && val[^1] == '"')
-            {
-                val = val.Substring(1, val.Length - 2).Trim();
+                key = forwardedPartSeperated[0].Trim().ToLower();
+                val = forwardedPartSeperated[1].Trim().ToLower();
             }
+
+
+            if (val[0] == '"' && val[^1] == '"') val = val.Substring(1, val.Length - 2).Trim();
 
             switch (key)
             {
@@ -59,6 +55,7 @@ public class ForwardedHeaderMiddleware
                     break;
             }
         }
+
         context.Request.Headers.Remove("Forwarded");
         return _next(context);
     }
@@ -79,7 +76,8 @@ public class ForwardedHeaderMiddleware
         var (ip, port) = GetHost(arg);
         context.Connection.RemoteIpAddress = ip;
         if (port.HasValue) context.Connection.RemotePort = port.Value;
-        _logger.LogInformation("Detected request using ip: {} and port: {}", context.Connection.RemoteIpAddress.ToString(), context.Connection.RemotePort);
+        _logger.LogInformation("Detected request using ip: {} and port: {}",
+            context.Connection.RemoteIpAddress.ToString(), context.Connection.RemotePort);
     }
 
     private void HandleHost(HttpContext context, string arg)
@@ -97,7 +95,8 @@ public class ForwardedHeaderMiddleware
     private static (IPAddress ip, int? port) GetHost(string src)
     {
         var (ip, portIndex) = src.Contains('[') ? HandleIp6(src) : HandleIp4(src);
-        return (IPAddress.Parse(ip), portIndex.HasValue ? int.Parse(src.Substring(portIndex.Value, src.Length - portIndex.Value)) : null);
+        return (IPAddress.Parse(ip),
+            portIndex.HasValue ? int.Parse(src.Substring(portIndex.Value, src.Length - portIndex.Value)) : null);
     }
 
     private static (string ip, int? portIndex) HandleIp4(string src)
@@ -110,8 +109,10 @@ public class ForwardedHeaderMiddleware
                 if (ipBuilder.Length == 0) throw new ArgumentException("Host is invalid", nameof(src));
                 return (ipBuilder.ToString(), ++i);
             }
+
             ipBuilder.Append(src[i]);
         }
+
         if (ipBuilder.Length == 0) throw new ArgumentException("Host is invalid", nameof(src));
         return (ipBuilder.ToString(), null);
     }
@@ -125,10 +126,12 @@ public class ForwardedHeaderMiddleware
             if (src[i] == '[')
             {
                 isIpOpen = true;
-            } else if (src[i] == ']')
+            }
+            else if (src[i] == ']')
             {
                 isIpOpen = false;
-            } else if (src[i] == ':' && !isIpOpen)
+            }
+            else if (src[i] == ':' && !isIpOpen)
             {
                 if (ipBuilder.Length == 0) throw new ArgumentException("Host is invalid", nameof(src));
                 return (ipBuilder.ToString(), ++i);
@@ -136,10 +139,11 @@ public class ForwardedHeaderMiddleware
 
             ipBuilder.Append(src[i]);
         }
+
         if (ipBuilder.Length == 0 || isIpOpen) throw new ArgumentException("Host is invalid", nameof(src));
         return (ipBuilder.ToString(), null);
     }
-    
+
 
     private static string[] Split(char delimiter, string source)
     {
@@ -161,6 +165,7 @@ public class ForwardedHeaderMiddleware
 
             builder.Append(ch);
         }
+
         forwardedElementBuilders.Add(builder);
         return forwardedElementBuilders.Select(b => b.ToString()).ToArray();
     }
